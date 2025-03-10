@@ -1,4 +1,4 @@
-const BASE_URL = 'https://cotizaciones-ui-ur-bcu.onrender.com/ap';
+const BASE_URL = 'https://cotizaciones-ui-ur-bcu.onrender.com/api';
 
 export interface Cotizacion {
   fecha: string;
