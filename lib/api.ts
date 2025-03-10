@@ -1,4 +1,4 @@
-const BASE_URL = 'https://cotizaciones-ui-ur-bcu.onrender.com/api';
+const BASE_URL = 'https://cotizaciones-ui-ur-bcu.onrender.com/ap';
 
 export interface Cotizacion {
   fecha: string;
@@ -9,6 +9,16 @@ export interface Cotizacion {
   moneda: string;
   tipo: string;
   valor: number;
+}
+
+interface CacheData {
+  data: Cotizacion;
+  timestamp: number;
+}
+
+interface ApiError extends Error {
+  status?: number;
+  code?: string;
 }
 
 // Funciones auxiliares para el manejo del caché local
@@ -72,10 +82,20 @@ export async function getCotizacionUI(fecha?: string): Promise<Cotizacion> {
         'Accept': 'application/json'
       }
     });
-    return await handleResponse(response);
-  } catch (error: any) {
+    const data = await handleResponse(response);
+    
+    // Guardar en caché local
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cached_ui', JSON.stringify({
+        data,
+        timestamp: Date.now()
+      }));
+    }
+    
+    return data;
+  } catch (error) {
     console.error('Error detallado UI:', {
-      message: error?.message || 'Error desconocido',
+      message: error instanceof Error ? error.message : 'Error desconocido',
       url,
       timestamp: new Date().toISOString()
     });
@@ -83,13 +103,13 @@ export async function getCotizacionUI(fecha?: string): Promise<Cotizacion> {
     // Intentar obtener del caché local
     const cachedData = localStorage.getItem('cached_ui');
     if (cachedData) {
-      const parsed = JSON.parse(cachedData);
+      const parsed = JSON.parse(cachedData) as CacheData;
       if (parsed && parsed.timestamp > Date.now() - 3600000) { // 1 hora
         return parsed.data;
       }
     }
     
-    throw new Error(error?.message || 'Error al obtener cotización UI');
+    throw new Error(error instanceof Error ? error.message : 'Error al obtener cotización UI');
   }
 }
 
@@ -105,10 +125,20 @@ export async function getCotizacionUR(fecha?: string): Promise<Cotizacion> {
         'Accept': 'application/json'
       }
     });
-    return await handleResponse(response);
-  } catch (error: any) {
+    const data = await handleResponse(response);
+    
+    // Guardar en caché local
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cached_ur', JSON.stringify({
+        data,
+        timestamp: Date.now()
+      }));
+    }
+    
+    return data;
+  } catch (error) {
     console.error('Error detallado UR:', {
-      message: error?.message || 'Error desconocido',
+      message: error instanceof Error ? error.message : 'Error desconocido',
       url,
       timestamp: new Date().toISOString()
     });
@@ -116,17 +146,17 @@ export async function getCotizacionUR(fecha?: string): Promise<Cotizacion> {
     // Intentar obtener del caché local
     const cachedData = localStorage.getItem('cached_ur');
     if (cachedData) {
-      const parsed = JSON.parse(cachedData);
+      const parsed = JSON.parse(cachedData) as CacheData;
       if (parsed && parsed.timestamp > Date.now() - 3600000) { // 1 hora
         return parsed.data;
       }
     }
     
-    throw new Error(error?.message || 'Error al obtener cotización UR');
+    throw new Error(error instanceof Error ? error.message : 'Error al obtener cotización UR');
   }
 }
 
-export async function getHistoricoUI(inicio?: string, fin?: string) {
+export async function getHistoricoUI(inicio?: string, fin?: string): Promise<Cotizacion[]> {
   const params = new URLSearchParams();
   if (inicio) params.append('inicio', inicio);
   if (fin) params.append('fin', fin);
@@ -140,17 +170,17 @@ export async function getHistoricoUI(inicio?: string, fin?: string) {
       }
     });
     return await handleResponse(response);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error detallado histórico UI:', {
-      message: error?.message || 'Error desconocido',
+      message: error instanceof Error ? error.message : 'Error desconocido',
       url,
       timestamp: new Date().toISOString()
     });
-    throw new Error(error?.message || 'Error al obtener histórico UI');
+    throw new Error(error instanceof Error ? error.message : 'Error al obtener histórico UI');
   }
 }
 
-export async function getHistoricoUR(inicio?: string, fin?: string) {
+export async function getHistoricoUR(inicio?: string, fin?: string): Promise<Cotizacion[]> {
   const params = new URLSearchParams();
   if (inicio) params.append('inicio', inicio);
   if (fin) params.append('fin', fin);
@@ -164,12 +194,12 @@ export async function getHistoricoUR(inicio?: string, fin?: string) {
       }
     });
     return await handleResponse(response);
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error detallado histórico UR:', {
-      message: error?.message || 'Error desconocido',
+      message: error instanceof Error ? error.message : 'Error desconocido',
       url,
       timestamp: new Date().toISOString()
     });
-    throw new Error(error?.message || 'Error al obtener histórico UR');
+    throw new Error(error instanceof Error ? error.message : 'Error al obtener histórico UR');
   }
 } 
