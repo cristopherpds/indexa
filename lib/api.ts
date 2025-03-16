@@ -1,7 +1,7 @@
 const BASE_URL = 'https://cotizaciones-ui-ur-bcu.onrender.com/api';
 
 export interface Cotizacion {
-  fecha_corte: string;
+  fecha: string;
   metadata: {
     fecha_consulta: string;
     fuente: string;
