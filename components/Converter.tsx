@@ -192,20 +192,20 @@ export default function Converter() {
                     <span className="text-xl font-semibold text-gray-900">
                       $ {currentValues[activeTab]?.valor.toFixed(4) || "No disponible"}
                     </span>
-                    {currentValues[activeTab]?.fecha && (
+                    {currentValues[activeTab]?.fecha_corte && (
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <button 
                             type="button" 
                             className="focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded-full p-1"
-                            aria-label={`Ver fecha de corte: ${formatDate(currentValues[activeTab]?.fecha || '')}`}
+                            aria-label={`Ver fecha de corte: ${formatDate(currentValues[activeTab]?.fecha_corte || '')}`}
                           >
                             <InfoIcon className="h-5 w-5 text-blue-500 hover:text-blue-600 transition-colors cursor-help" aria-hidden="true" />
                           </button>
                         </TooltipTrigger>
                         <TooltipContent side="top" align="center" className="bg-gray-900 text-white">
                           <p className="font-medium">
-                            Fecha de corte: {formatDate(currentValues[activeTab]?.fecha || '')}
+                            Fecha de corte: {formatDate(currentValues[activeTab]?.fecha_corte || '')}
                           </p>
                         </TooltipContent>
                       </Tooltip>
