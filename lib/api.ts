@@ -1,7 +1,7 @@
 const BASE_URL = 'https://cotizaciones-ui-ur-bcu.onrender.com/api';
 
 export interface Cotizacion {
-  fecha: string;
+  fecha_corte: string;
   metadata: {
     fecha_consulta: string;
     fuente: string;
@@ -83,6 +83,9 @@ export async function getCotizacionUI(fecha?: string): Promise<Cotizacion> {
       }
     });
     const data = await handleResponse(response);
+    
+    // Agregar este log temporal para verificar la estructura de datos
+    console.log('Datos recibidos:', data);
     
     // Guardar en caché local
     if (typeof window !== 'undefined') {
