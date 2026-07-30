@@ -83,12 +83,14 @@ export default function Converter() {
   }
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
+    // La API devuelve "YYYY-MM-DD"; new Date(string) lo tomaría como medianoche
+    // UTC y en zonas horarias al oeste (UY es UTC-3) mostraría el día anterior.
+    const [year, month, day] = dateString.split('-').map(Number)
     return new Intl.DateTimeFormat('es-UY', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric'
-    }).format(date)
+    }).format(new Date(year, month - 1, day))
   }
 
   return (
