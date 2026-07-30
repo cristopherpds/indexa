@@ -29,3 +29,7 @@ export function getCotizacionUI(): Promise<Cotizacion> {
 export function getCotizacionUR(): Promise<Cotizacion> {
   return getCotizacion('ur');
 }
+
+export function getCotizacionUP(): Promise<Cotizacion> {
+  return getCotizacion('up');
+}

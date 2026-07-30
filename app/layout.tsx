@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Indexa+",
-  description: "Conversor de Unidades Indexadas y Reajustables",
+  description: "Conversor de Unidades Indexadas, Reajustables y Previsionales",
 }
 
 export default function RootLayout({

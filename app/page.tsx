@@ -10,8 +10,8 @@ export default function Home() {
           Indexa<span className="text-blue-400">+</span>
         </h1>
         <div className="text-white/70 text-center mb-8">
-          <p className="text-lg">Conversor de Unidades Indexadas y</p>
-          <p className="text-lg">Reajustables</p>
+          <p className="text-lg">Conversor de Unidades Indexadas,</p>
+          <p className="text-lg">Reajustables y Previsionales</p>
         </div>
         <Converter />
         <Footer />

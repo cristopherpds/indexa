@@ -7,16 +7,23 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { getCotizacionUI, getCotizacionUR, type Cotizacion } from "@/lib/api"
+import { getCotizacionUI, getCotizacionUR, getCotizacionUP, type Cotizacion } from "@/lib/api"
 import { InfoIcon, Calculator } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { VisuallyHidden } from "@/components/ui/visually-hidden"
 
-type UnitType = "indexada" | "reajustable"
+type UnitType = "indexada" | "reajustable" | "previsional"
+
+const UNIT_LABELS: Record<UnitType, string> = {
+  indexada: "Unidades indexadas",
+  reajustable: "Unidades reajustables",
+  previsional: "Unidades previsionales",
+}
 
 interface CurrentValues {
   indexada: Cotizacion | null
   reajustable: Cotizacion | null
+  previsional: Cotizacion | null
 }
 
 export default function Converter() {
@@ -25,7 +32,8 @@ export default function Converter() {
   const [result, setResult] = useState<number>(0)
   const [currentValues, setCurrentValues] = useState<CurrentValues>({
     indexada: null,
-    reajustable: null
+    reajustable: null,
+    previsional: null
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -38,13 +46,15 @@ export default function Converter() {
         setLoading(true)
         setError(null)
         setLiveRegion("Cargando cotizaciones...")
-        const [ui, ur] = await Promise.all([
+        const [ui, ur, up] = await Promise.all([
           getCotizacionUI(),
-          getCotizacionUR()
+          getCotizacionUR(),
+          getCotizacionUP()
         ])
         setCurrentValues({
           indexada: ui,
-          reajustable: ur
+          reajustable: ur,
+          previsional: up
         })
         setLiveRegion("Cotizaciones actualizadas")
       } catch (err) {
@@ -133,12 +143,12 @@ export default function Converter() {
               setActiveTab(value as UnitType)
               setResult(0)
               setUnits("")
-              setLiveRegion(`Cambiado a ${value === 'indexada' ? 'unidades indexadas' : 'unidades reajustables'}`)
+              setLiveRegion(`Cambiado a ${UNIT_LABELS[value as UnitType].toLowerCase()}`)
             }} 
             className="w-full"
           >
-            <TabsList 
-              className="grid grid-cols-2 w-full bg-gray-50 p-1 rounded-lg"
+            <TabsList
+              className="grid grid-cols-3 w-full bg-gray-50 p-1 rounded-lg"
               aria-label="Seleccione el tipo de unidad"
             >
               <TabsTrigger
@@ -154,6 +164,13 @@ export default function Converter() {
                 aria-label="Unidades reajustables"
               >
                 Reajustable
+              </TabsTrigger>
+              <TabsTrigger
+                value="previsional"
+                className="rounded-md data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm transition-all duration-200"
+                aria-label="Unidades previsionales"
+              >
+                Previsional
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -217,7 +234,7 @@ export default function Converter() {
 
                 <div className="space-y-3">
                   <label htmlFor="units" className="text-sm font-medium text-gray-700 block">
-                    {activeTab === "indexada" ? "Unidades indexadas" : "Unidades reajustables"}:
+                    {UNIT_LABELS[activeTab]}:
                   </label>
                   <Input
                     id="units"
@@ -227,7 +244,7 @@ export default function Converter() {
                     onKeyPress={handleKeyPress}
                     placeholder="Ingrese el valor a convertir"
                     className="text-lg bg-white border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 rounded-lg shadow-sm"
-                    aria-label={`Ingrese cantidad de ${activeTab === "indexada" ? "unidades indexadas" : "unidades reajustables"}`}
+                    aria-label={`Ingrese cantidad de ${UNIT_LABELS[activeTab].toLowerCase()}`}
                     aria-describedby="calc-instructions"
                   />
                   <VisuallyHidden id="calc-instructions">

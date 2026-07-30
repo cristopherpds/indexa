@@ -7,9 +7,9 @@ export async function GET(
 ) {
   const { tipo } = await params;
 
-  if (tipo !== 'ui' && tipo !== 'ur') {
+  if (tipo !== 'ui' && tipo !== 'ur' && tipo !== 'up') {
     return NextResponse.json(
-      { error: 'Tipo de unidad inválido: use "ui" o "ur"', codigo: 'TIPO_INVALIDO' },
+      { error: 'Tipo de unidad inválido: use "ui", "ur" o "up"', codigo: 'TIPO_INVALIDO' },
       { status: 400 }
     );
   }

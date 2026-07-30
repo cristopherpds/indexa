@@ -7,12 +7,13 @@ const BASE_URL = 'https://cotizaciones.bcu.gub.uy/wscotizaciones/servlet';
 // Cache por 1 hora (en segundos)
 const CACHE_TIME = 60 * 60;
 
-export type TipoUnidad = 'ui' | 'ur';
+export type TipoUnidad = 'ui' | 'ur' | 'up';
 
 // Códigos de moneda del BCU (grupo 2: Cotizaciones Locales)
 const MONEDAS: Record<TipoUnidad, { codigo: number; nombre: string }> = {
   ui: { codigo: 9800, nombre: 'Unidad Indexada' },
   ur: { codigo: 9900, nombre: 'Unidad Reajustable' },
+  up: { codigo: 9700, nombre: 'Unidad Previsional' },
 };
 
 export interface Cotizacion {
