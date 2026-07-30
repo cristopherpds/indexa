@@ -1,27 +1,52 @@
 # Indexa+
 
-Indexa+ es una aplicación web desarrollada con [Next.js](https://nextjs.org) que permite convertir entre **Unidades Indexadas (UI)** y **Unidades Reajustables (UR)**, utilizando las cotizaciones oficiales proporcionadas por el Banco Central del Uruguay (BCU). La aplicación está diseñada para ser rápida, accesible y fácil de usar, con soporte para dispositivos móviles y de escritorio.
+Indexa+ es una aplicación web desarrollada con [Next.js](https://nextjs.org) que permite convertir **Unidades Indexadas (UI)**, **Unidades Reajustables (UR)** y **Unidades Previsionales (UP)** a pesos uruguayos, utilizando las cotizaciones oficiales del Banco Central del Uruguay (BCU). La aplicación está diseñada para ser rápida, accesible y fácil de usar, con soporte para dispositivos móviles y de escritorio.
 
 ![Indexa+](./public/indexa-screenshot.jpeg)
 
-Para obtener las cotizaciones oficiales, se creó un servicio API independiente que centraliza y expone los datos del BCU. Puedes encontrar el código fuente de este servicio en el siguiente repositorio: [cotizaciones_UI_UR_BCU](https://github.com/cristopherpds/cotizaciones_UI_UR_BCU).
+Las cotizaciones se obtienen directamente de los [web services oficiales de cotizaciones del BCU](https://www.bcu.gub.uy/Estadisticas-e-Indicadores/Paginas/Cotizaciones.aspx) (SOAP), sin servicios intermedios.
 
 ## Características
 
-- **Conversión en tiempo real**: Calcula el valor en pesos uruguayos a partir de Unidades Indexadas o Reajustables.
-- **Cotizaciones oficiales**: Obtiene las cotizaciones más recientes directamente desde el servicio API.
-- **Interfaz accesible**: Incluye soporte para lectores de pantalla y navegación por teclado.
+- **Conversión en tiempo real**: Calcula el valor en pesos uruguayos a partir de Unidades Indexadas, Reajustables o Previsionales.
+- **Cotizaciones oficiales**: Consume los web services del BCU (`awsbcucotizaciones` y `awsultimocierre`), usando siempre la fecha del último cierre publicado — por lo que también funciona en fines de semana y feriados.
+- **Caché en el servidor**: Las cotizaciones se cachean durante 1 hora, de modo que las visitas no generan llamadas innecesarias al BCU y la respuesta es inmediata.
+- **Interfaz accesible**: Incluye soporte para lectores de pantalla (live regions, etiquetas ARIA) y navegación por teclado.
 - **Diseño moderno**: Construido con Tailwind CSS para un diseño limpio y responsivo.
-- **Caché local**: Optimiza las consultas mediante almacenamiento en caché para mejorar el rendimiento.
 
 ## Tecnologías Utilizadas
 
-- **Next.js**: Framework de React para renderizado del lado del servidor y generación de sitios estáticos.
+- **Next.js (App Router)**: Framework de React. Los route handlers actúan de puente entre el navegador y los web services SOAP del BCU.
 - **TypeScript**: Tipado estático para un desarrollo más seguro y mantenible.
 - **Tailwind CSS**: Framework de utilidades para estilos rápidos y consistentes.
 - **Radix UI**: Componentes accesibles y personalizables.
 - **Framer Motion**: Animaciones fluidas y modernas.
-- **API del BCU**: Fuente de datos para las cotizaciones de UI y UR, consumida a través del servicio API mencionado.
+- **Web services del BCU**: Fuente oficial de las cotizaciones de UI, UR y UP.
+
+## API interna
+
+La aplicación expone un endpoint propio que devuelve la cotización vigente en JSON:
+
+```
+GET /api/cotizacion/ui   → Unidad Indexada    (código BCU 9800)
+GET /api/cotizacion/ur   → Unidad Reajustable (código BCU 9900)
+GET /api/cotizacion/up   → Unidad Previsional (código BCU 9700)
+```
+
+Respuesta de ejemplo:
+
+```json
+{
+  "fecha": "2026-07-29",
+  "metadata": {
+    "fecha_consulta": "2026-07-30T04:13:55.392Z",
+    "fuente": "Banco Central del Uruguay (awsbcucotizaciones)"
+  },
+  "moneda": "UYU",
+  "tipo": "UI",
+  "valor": 6.6276
+}
+```
 
 ## Cómo Empezar
 
@@ -30,7 +55,7 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 1. Clona el repositorio:
 
    ```bash
-   git clone https://github.com/tu-usuario/indexa.git
+   git clone https://github.com/cristopherpds/indexa.git
    cd indexa
    ```
 
@@ -48,13 +73,22 @@ Sigue estos pasos para ejecutar el proyecto en tu entorno local:
 
 4. Abre http://localhost:3000 en tu navegador para ver la aplicación.
 
+### Variables de entorno
+
+| Variable | Descripción |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | URL pública del sitio en producción (por ejemplo `https://indexa.example.com`). Se usa para generar las URLs absolutas de los metadatos Open Graph/Twitter. Opcional en desarrollo. |
+
 ## Estructura del Proyecto
 
-- **`app/`**: Contiene las páginas principales de la aplicación, incluyendo el diseño global y la página de inicio.
+- **`app/`**: Páginas, diseño global y metadatos (favicon, imagen Open Graph).
+  - **`app/api/cotizacion/[tipo]/`**: Route handler que sirve las cotizaciones en JSON.
 - **`components/`**: Componentes reutilizables como el conversor, botones, tarjetas y otros elementos de la interfaz.
-- **`lib/`**: Funciones auxiliares para la interacción con la API, manejo del caché y lógica compartida.
+- **`lib/`**:
+  - **`bcu.ts`**: Cliente SOAP de los web services del BCU, con caché de servidor (1 hora).
+  - **`api.ts`**: Cliente que consume la API interna desde el navegador.
+  - **`utils.ts`**: Utilidades compartidas.
 - **`public/`**: Archivos estáticos como imágenes, íconos y otros recursos accesibles públicamente.
-- **`styles/`**: Configuración de Tailwind CSS y estilos globales personalizados.
 
 ## Contribuciones
 
